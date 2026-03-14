@@ -98,7 +98,7 @@ local title = Instance.new("TextLabel",b)
 title.Size=UDim2.new(1,-10,0,25)
 title.Position=UDim2.new(0,5,0,5)
 title.BackgroundTransparency=1
-title.Text="Word Finder V2"
+title.Text="Word Finder V2.5"
 title.TextColor3=Color3.fromRGB(255,255,255)
 title.Font=Enum.Font.GothamBold
 title.TextSize=14
@@ -144,16 +144,16 @@ closeButton.MouseButton1Click:Connect(function()
     b:Destroy()
 end)
 
-local info = Instance.new("TextLabel", contentFrame)
-info.Size=UDim2.new(1,-10,0,30)
-info.Position=UDim2.new(0,5,0,30)
-info.BackgroundTransparency=1
-info.Text="Updated Dictionary Words (464k)"
-info.TextColor3=Color3.fromRGB(100,255,100)
-info.Font=Enum.Font.Gotham
-info.TextSize=10
-info.TextXAlignment=Enum.TextXAlignment.Center
-info.TextWrapped=true
+local prefixLabel = Instance.new("TextLabel", contentFrame)
+prefixLabel.Size = UDim2.new(1,-10,0,25)
+prefixLabel.Position = UDim2.new(0,5,0,35)
+prefixLabel.BackgroundTransparency = 1
+prefixLabel.Text = "Prefix: -"
+prefixLabel.TextColor3 = Color3.fromRGB(255,255,255)
+prefixLabel.Font = Enum.Font.GothamBold
+prefixLabel.TextSize = 13
+prefixLabel.TextXAlignment = Enum.TextXAlignment.Center
+prefixLabel.TextWrapped = false
 
 local sortFrame = Instance.new("Frame", contentFrame)
 sortFrame.Size=UDim2.new(1,-20,0,30)
@@ -377,6 +377,8 @@ spawn(function()
     notify("Word Finder V2 is now active! All words work on Pro Server.")
     wait(0)
     notify("Updated Dictionary By Quavix :)")
+    wait(0)
+    notify("Auto Detect Prefix (Beta) Will Lag If You Type More Than 11 Letters")
     wait(3)
     notify("1563 words added (updated on 3/14/26)")
 
@@ -384,5 +386,86 @@ spawn(function()
 
     if h.Text ~= "" then
         UpdateSuggestions()
+    end
+end)
+
+local player = game:GetService("Players").LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local function detectPrefix()
+
+    for _,obj in pairs(playerGui:GetDescendants()) do
+        if obj.Name == "CurrentWord" then
+
+            local letters = {}
+
+            for _,child in pairs(obj:GetChildren()) do
+                if child:IsA("GuiObject") and child.Visible then
+                    local txt = child:FindFirstChild("Letter")
+
+                    if txt and txt:IsA("TextLabel") then
+                        table.insert(letters,{
+                            text = txt.Text,
+                            x = child.AbsolutePosition.X
+                        })
+                    end
+                end
+            end
+
+            table.sort(letters,function(a,b)
+                return a.x < b.x
+            end)
+
+            local result = ""
+
+            for _,l in pairs(letters) do
+                result = result .. l.text
+            end
+
+            return result:lower()
+        end
+    end
+
+    return ""
+end
+
+function UpdatePrefixSuggestions()
+    local prefix = detectPrefix()
+    if prefix == "" then return end
+
+    local suggests = SuggestWords(prefix, 50)
+
+    for _, word in ipairs(suggests) do
+        local btn = Instance.new("TextButton", list)
+        btn.Size = UDim2.new(1, 0, 0, 22)
+        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btn.Font = Enum.Font.Gotham
+        btn.TextSize = 12
+        btn.Text = word
+        btn.AutoButtonColor = true
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
+        btn.Selectable = false
+        btn.Active = false
+    end
+end
+
+local lastPrefix = ""
+
+task.spawn(function()
+    while true do
+        local prefix = detectPrefix()
+        local truncatedPrefix = prefix:sub(1, 10)
+        if truncatedPrefix ~= lastPrefix then
+            lastPrefix = truncatedPrefix
+            ClearSuggestions()
+            if truncatedPrefix ~= "" then
+                prefixLabel.Text = "Prefix: "..truncatedPrefix
+                UpdatePrefixSuggestions(truncatedPrefix)
+            else
+                prefixLabel.Text = "Prefix: -"
+            end
+        end
+        task.wait(0.1)
     end
 end)
