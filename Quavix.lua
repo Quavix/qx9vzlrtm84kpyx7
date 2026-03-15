@@ -368,18 +368,18 @@ spawn(function()
             StarterGui:SetCore("SendNotification", {
                 Title = "Word Finder V2",
                 Text = message,
-                Duration = 5
+                Duration = 10
             })
         end)
     end
 
-    wait(0)
+    wait(0.1)
     notify("Word Finder V2 is now active! All words work on Pro Server.")
-    wait(0)
+    wait(0.1)
     notify("Updated Dictionary By Quavix :)")
-    wait(0)
+    wait(0.1)
     notify("Auto Detect Prefix (Beta) Will Lag If You Type More Than 11 Letters")
-    wait(3)
+    wait(5)
     notify("1563 words added (updated on 3/14/26)")
 
     statusLabel.Visible = false
