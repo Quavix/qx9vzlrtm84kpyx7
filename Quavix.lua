@@ -366,7 +366,7 @@ spawn(function()
     local function notify(message)
         pcall(function()
             StarterGui:SetCore("SendNotification", {
-                Title = "Word Finder V2",
+                Title = "Word Finder V2.5",
                 Text = message,
                 Duration = 10
             })
@@ -382,7 +382,14 @@ spawn(function()
     wait(5)
     notify("4 new words added (Updated on 3/16/2026)")
     wait(10)
-    notify("Be careful when using this, because some players are extremely active in reporting others. They can detect when players are searching or not. Even a single report that gets resolved could get you banned.")
+    
+    pcall(function()
+    StarterGui:SetCore("SendNotification", {
+        Title = "Word Finder V2.5",
+        Text = "Be careful when using this, because some players are extremely active in reporting others. They can detect when players are searching or not. Even a single report that gets resolved could get you banned.",
+        Duration = 30
+    })
+end)
 
     statusLabel.Visible = false
 
