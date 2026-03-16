@@ -1,4 +1,4 @@
-local url = "https://raw.githubusercontent.com/Quavix/DictionaryV2/refs/heads/main/word-bomb-list.txt"
+local url = "https://raw.githubusercontent.com/QuavixAlt/-Q7-Zx-N-3L-8mT2P-EwHkA9cFrXyS/refs/heads/main/word_bomb_list.txt"
 
 local Words = {}
 local loaded = false
