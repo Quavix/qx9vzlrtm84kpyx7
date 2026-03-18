@@ -476,7 +476,7 @@ task.spawn(function()
     while true do
         local prefix = detectPrefix()
 
-        if prefix:find("%.%.%.") then
+        if prefix:find("%.%.%.") or prefix:find("#+") then
             prefixLabel.Text = "Prefix: ..."
             task.wait(0.1)
             continue
@@ -496,6 +496,6 @@ task.spawn(function()
             end
         end
 
-        task.wait(0)
+        task.wait(0.25)
     end
 end)
