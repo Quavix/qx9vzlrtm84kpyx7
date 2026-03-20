@@ -1,16 +1,4 @@
-local function s(...)
-    local t = {...}
-    for i,v in ipairs(t) do
-        t[i] = string.char(v)
-    end
-    return table.concat(t)
-end
-
-local url = s(
-104,116,116,112,115,58,47,47,114,97,119,46,103,105,116,104,117,98,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109,47,
-81,117,97,118,105,120,65,108,116,47,45,81,55,45,90,120,45,78,45,51,76,45,56,109,84,50,80,45,69,119,72,107,65,57,99,70,114,88,
-121,83,47,114,101,102,115,47,104,101,97,100,115,47,109,97,105,110,47,119,111,114,100,115,46,116,120,116
-)
+local url=(function()local a={104,116,116,112,115,58,47,47,114,97,119,46,103,105,116,104,117,98,117,115,101,114,99,111,110,116,101,110,116,46,99,111,109,47,81,117,97,118,105,120,65,108,116,47,45,81,55,45,90,120,45,78,45,51,76,45,56,109,84,50,80,45,69,119,72,107,65,57,99,70,114,88,121,83,47,114,101,102,115,47,104,101,97,100,115,47,109,97,105,110,47,119,111,114,100,115,46,116,120,116}local b={}for i=1,#a do b[i]=string.char(a[i])end;return table.concat(b)end)()
 
 local Words = {}
 local loaded = false
@@ -410,92 +398,10 @@ end)
     end
 end)
 
-local player = game:GetService("Players").LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local detectPrefix=(function()local p=game:GetService("Players").LocalPlayer local g=p:WaitForChild("PlayerGui")return function()for _,o in ipairs(g:GetDescendants())do if o.Name=="CurrentWord"then local l={}for _,c in ipairs(o:GetChildren())do if c:IsA("GuiObject")and c.Visible then local t=c:FindFirstChild("Letter")if t and t:IsA("TextLabel")then l[#l+1]={t.Text,c.AbsolutePosition.X}end end end table.sort(l,function(a,b)return a[2]<b[2]end)local r=""for i=1,#l do r=r..l[i][1]end return string.lower(r)end end return ""end end)()
 
-local function detectPrefix()
+local UpdatePrefixSuggestions=(function()return function(pf)if pf==""then return end local s=SuggestWords(pf,50)for i=1,#s do local b=Instance.new("TextButton",list)b.Size=UDim2.new(1,0,0,22)b.BackgroundColor3=Color3.fromRGB(45,45,45)b.TextColor3=Color3.fromRGB(255,255,255)b.Font=Enum.Font.Gotham b.TextSize=12 b.Text=s[i]b.AutoButtonColor=true Instance.new("UICorner",b).CornerRadius=UDim.new(0,4)b.Selectable=false b.Active=false end end end)()
 
-    for _,obj in ipairs(playerGui:GetDescendants()) do
-        if obj.Name == "CurrentWord" then
+local lastPrefix=""
 
-            local letters = {}
-
-            for _,child in ipairs(obj:GetChildren()) do
-                if child:IsA("GuiObject") and child.Visible then
-                    local txt = child:FindFirstChild("Letter")
-
-                    if txt and txt:IsA("TextLabel") then
-                        table.insert(letters,{
-                            text = txt.Text,
-                            x = child.AbsolutePosition.X
-                        })
-                    end
-                end
-            end
-
-            table.sort(letters,function(a,b)
-                return a.x < b.x
-            end)
-
-            local result = ""
-
-            for _,l in pairs(letters) do
-                result = result .. l.text
-            end
-
-            return result:lower()
-        end
-    end
-
-    return ""
-end
-
-function UpdatePrefixSuggestions(prefix)
-    if prefix == "" then return end
-
-    local suggests = SuggestWords(prefix, 50)
-
-    for _, word in ipairs(suggests) do
-        local btn = Instance.new("TextButton", list)
-        btn.Size = UDim2.new(1, 0, 0, 22)
-        btn.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.Font = Enum.Font.Gotham
-        btn.TextSize = 12
-        btn.Text = word
-        btn.AutoButtonColor = true
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 4)
-        btn.Selectable = false
-        btn.Active = false
-    end
-end
-
-local lastPrefix = ""
-
-task.spawn(function()
-    while true do
-        local prefix = detectPrefix()
-
-        if prefix:find("%.%.%.") or prefix:find("#+") then
-            prefixLabel.Text = "Prefix: ..."
-            task.wait(0.1)
-            continue
-        end
-
-        local truncatedPrefix = prefix:sub(1,10)
-
-        if truncatedPrefix ~= lastPrefix then
-            lastPrefix = truncatedPrefix
-            ClearSuggestions()
-
-            if truncatedPrefix ~= "" then
-                prefixLabel.Text = "Prefix: "..truncatedPrefix
-                UpdatePrefixSuggestions(truncatedPrefix)
-            else
-                prefixLabel.Text = "Prefix: -"
-            end
-        end
-
-        task.wait(0.25)
-    end
-end)
+task.spawn((function()return function()while true do local prefix=detectPrefix()if string.find(prefix,"%.%.%.")or string.find(prefix,"#+")then prefixLabel.Text="Prefix: ..."task.wait(0.1)continue end local t=string.sub(prefix,1,10)if t~=lastPrefix then lastPrefix=t ClearSuggestions()if t~=""then prefixLabel.Text="Prefix: "..t UpdatePrefixSuggestions(t)else prefixLabel.Text="Prefix: -"end end task.wait(0.1)end end end)())
