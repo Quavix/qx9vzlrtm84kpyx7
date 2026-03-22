@@ -393,7 +393,7 @@ spawn(function()
     wait(0.1)
     notify("Auto Detect Prefix Lag Is Fixed")
     wait(5)
-    notify("Adding 4 New Words and Removing 4 Words (Updated on 3/21-22/2026)")
+    notify("Dictionary Updated Tomorrow or Another Tomorrow (Updated 10)")
     wait(10)
     
     pcall(function()
